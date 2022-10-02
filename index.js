@@ -1,34 +1,41 @@
-const express = require("express");
-const mongoose  = require("mongoose");
-const todoRoutes = require("./routes/routes")
+const express = require('express')
+const mongoose = require('mongoose')
+const path = require('path')
+const exphbs = require('express-handlebars')
+const todoRoutes = require('./routes/todos')
 
-require("dotenv").config();
+const PORT = process.env.PORT || 5000
 
-const exphbr = require("express-handlebars")
-
-const hbs = exphbr.create({
-    defaultLayout: 'main',
-    extname: "hbs"
+const app = express()
+const hbs = exphbs.create({
+  defaultLayout: 'main',
+  extname: 'hbs'
 })
 
-const PORT = process.env.PORT || 3000;
+app.engine('hbs', hbs.engine)
+app.set('view engine', 'hbs')
+app.set('views', 'views')
 
-const app = express();
-
-app.engine("hbs", hbs.engine)
-app.set("view engine", "hbs")
-app.set("views", "views")
+app.use(express.urlencoded({ extended: true }))
+app.use(express.static(path.join(__dirname, 'public')))
 
 app.use(todoRoutes)
 
-async function start(){
-    try {
-        await mongoose.connect("mongodb+srv://User2507:qwerty12345@cluster0.rbvei.mongodb.net/todosCollection")
-        .then(()=>console.log("Mongo has been started"))
-        .catch(e=>console.log(e))
-    } catch (error) {
-        console.log(error)
-    }
+async function start() {
+  try {
+    await mongoose.connect(
+      'mongodb+srv://User2507:qwerty12345@cluster0.rbvei.mongodb.net/todosCollection',
+      {
+        useNewUrlParser: true,
+        useFindAndModify: false
+      }
+    )
+    app.listen(PORT, () => {
+      console.log('Server has been started...')
+    })
+  } catch (e) {
+    console.log(e)
+  }
 }
+
 start()
-app.listen(PORT, ()=>{console.log(`Server has been started on port: ${PORT}`)})
